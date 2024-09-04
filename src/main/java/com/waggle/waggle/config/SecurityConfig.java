@@ -1,13 +1,12 @@
 package com.waggle.waggle.config;
 
-import com.waggle.waggle.auth.OAuth2UserService;
+import com.waggle.waggle.auth.OAuth2Handler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -15,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuth2UserService oAuth2UserService;
+    private final OAuth2Handler oAuth2Handler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,11 +28,8 @@ public class SecurityConfig {
         });
 
         http.oauth2Login(oauth2Configurer -> {
-            oauth2Configurer.
-                    loginPage("/login")
-                    .userInfoEndpoint(userInfoEndpointConfig -> {
-                        userInfoEndpointConfig.userService(oAuth2UserService);
-                    });
+            oauth2Configurer
+                    .successHandler(oAuth2Handler);
         });
 
         return http.build();
