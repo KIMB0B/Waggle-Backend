@@ -5,24 +5,24 @@ services:
     ports:
       - 8080:8080
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:${DB_EXTERNAL_PORT}/${DB_DATABASE}
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${DB_ROOT_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:${DB_EXTERNAL_PORT}/${DB_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     depends_on:
-      - mysql
+      - database
     env_file:
       - ./.env
 
-  mysql:
+  database:
     image: mysql:latest
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Seoul
     ports:
-      - ${DB_EXTERNAL_PORT}:${DB_INTERNAL_PORT}
+      - '${DB_EXTERNAL_PORT}:${DB_INTERNAL_PORT}'
     volumes:
       - db-data:/var/lib/mysql
 
