@@ -1,5 +1,7 @@
-package com.waggle.waggle.auth.jwt;
+package com.waggle.waggle.auth.util;
 
+import com.waggle.waggle.auth.constant.TokenErrorResult;
+import com.waggle.waggle.auth.exception.TokenException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

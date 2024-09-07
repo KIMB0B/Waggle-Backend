@@ -1,13 +1,14 @@
-package com.waggle.waggle.auth.jwt;
+package com.waggle.waggle.auth.constant;
 
 import com.waggle.waggle.global.dto.ErrorReasonDto;
+import com.waggle.waggle.global.interfaces.BaseErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum TokenErrorResult {
+public enum TokenErrorResult implements BaseErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "401", "유효하지 않은 토큰입니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "401", "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "401", "유효하지 않은 리프레쉬 토큰입니다."),

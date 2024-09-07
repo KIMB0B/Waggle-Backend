@@ -6,9 +6,10 @@ import com.waggle.waggle.auth.dto.NaverUserInfo;
 import com.waggle.waggle.auth.dto.OAuth2UserInfo;
 import com.waggle.waggle.auth.entity.RefreshToken;
 import com.waggle.waggle.auth.entity.RefreshTokenRepository;
-import com.waggle.waggle.auth.jwt.JwtUtil;
+import com.waggle.waggle.auth.util.JwtUtil;
 import com.waggle.waggle.user.entity.User;
 import com.waggle.waggle.user.entity.UserRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -108,9 +109,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // 액세스 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(user.getUserId(), ACCESS_TOKEN_EXPIRATION_TIME);
 
-        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
-        String encodedName = URLEncoder.encode(name, "UTF-8");
-        String redirectUri = String.format(REDIRECT_URI, encodedName, accessToken, refreshToken);
+        Cookie cookie = new Cookie("refresh_token", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(30 * 24 * 60 * 60); // 30일
+        response.addCookie(cookie);
+
+        // 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
+        String redirectUri = String.format(REDIRECT_URI, accessToken);
         getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 }

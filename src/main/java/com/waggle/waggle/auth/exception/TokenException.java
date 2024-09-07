@@ -1,5 +1,6 @@
-package com.waggle.waggle.auth.jwt;
+package com.waggle.waggle.auth.exception;
 
+import com.waggle.waggle.auth.constant.TokenErrorResult;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
