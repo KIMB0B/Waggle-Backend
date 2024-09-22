@@ -1,18 +1,16 @@
 package com.waggle.waggle.auth;
 
-import com.waggle.waggle.auth.dto.TokenResponse;
+import com.waggle.waggle.auth.dto.*;
 import com.waggle.waggle.auth.service.TokenService;
 import com.waggle.waggle.global.ApiResponse;
 import com.waggle.waggle.global.constant.ErrorStatus;
 import com.waggle.waggle.global.constant.SuccessStatus;
+import com.waggle.waggle.user.entity.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/auth")
@@ -38,5 +36,10 @@ public class TokenController {
 
         TokenResponse accessToken = authService.reissueAccessToken(refreshToken);
         return ApiResponse.onSuccess(SuccessStatus._CREATED_ACCESS_TOKEN, accessToken);
+    }
+
+    @GetMapping("/current-user")
+    public User fetchCurrentUser() {
+        return authService.getCurrentUser();
     }
 }

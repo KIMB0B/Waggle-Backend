@@ -1,23 +1,32 @@
 package com.waggle.waggle.auth.service;
 
-import com.waggle.waggle.auth.dto.TokenResponse;
+import com.waggle.waggle.auth.dto.*;
 import com.waggle.waggle.auth.entity.RefreshToken;
 import com.waggle.waggle.auth.entity.RefreshTokenRepository;
 import com.waggle.waggle.auth.util.JwtUtil;
 import com.waggle.waggle.auth.constant.TokenErrorResult;
 import com.waggle.waggle.auth.exception.TokenException;
+import com.waggle.waggle.user.entity.User;
+import com.waggle.waggle.user.entity.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
+    private static final Logger log = LoggerFactory.getLogger(TokenServiceImpl.class);
     @Value("${JWT_ACCESS_TOKEN_EXPIRE_TIME}")
     private long ACCESS_TOKEN_EXPIRATION_TIME; // 액세스 토큰 유효기간
 
+    private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
@@ -38,5 +47,33 @@ public class TokenServiceImpl implements TokenService {
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .build();
+    }
+
+    @Override
+    public User getCurrentUser() {
+        OAuth2UserInfo oAuth2UserInfo = null;
+
+        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        String provider = token.getAuthorizedClientRegistrationId();
+
+        switch (provider) {
+            case "google":
+                oAuth2UserInfo = new GoogleUserInfo(token.getPrincipal().getAttributes());
+                break;
+            case "kakao":
+                oAuth2UserInfo = new KakaoUserInfo(token.getPrincipal().getAttributes());
+                break;
+            case "naver":
+                oAuth2UserInfo = new NaverUserInfo((Map<String, Object>) token.getPrincipal().getAttributes().get("response"));
+                break;
+        }
+
+        User user = userRepository.findByProviderId(oAuth2UserInfo.getProviderId());
+
+        if (user == null) {
+            return null;
+        }
+
+        return user;
     }
 }
